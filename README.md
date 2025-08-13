@@ -9,5 +9,4 @@
 - Order service contains order-api, order-database, order-messaging, order-domain-application and core
 - It also has a order-container submodule to create a jar file for order-service
 
-
-- ![dependency-graph.png](target/dependency-graph.png)
+![dependency-graph.png](images/dependency-graph.png)
