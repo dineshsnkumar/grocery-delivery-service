@@ -2,10 +2,13 @@ package io.projects.grocery.delivery.service.domain.entity;
 
 import io.projects.domain.entity.AggregateRoot;
 import io.projects.domain.valueobject.*;
+import io.projects.grocery.delivery.service.domain.exceptions.OrderDomainException;
+import io.projects.grocery.delivery.service.domain.valueobjects.OrderItemId;
 import io.projects.grocery.delivery.service.domain.valueobjects.StreetAddress;
 import io.projects.grocery.delivery.service.domain.valueobjects.TrackingId;
 
 import java.util.List;
+import java.util.UUID;
 
 public class Order extends AggregateRoot<OrderId> {
     private final CustomerId customerId;
@@ -61,6 +64,47 @@ public class Order extends AggregateRoot<OrderId> {
 
     public List<String> getFailureMessages() {
         return failureMessages;
+    }
+
+    public void initializeOrder(){
+        setId(new OrderId(UUID.randomUUID()));
+        trackingId = new TrackingId(UUID.randomUUID());
+        orderStatus = OrderStatus.PENDING;
+        initializeOrderItems();
+    }
+
+    public void validateOrder(){
+        validateTotalPrice();
+        validateItemPrice();
+    }
+
+    private void validateItemPrice() {
+        if (price != null && !price.isGreaterThanZero()){
+            throw new OrderDomainException("Price must not greater than zero and should not be bull");
+        }
+    }
+
+    private void validateTotalPrice() {
+        Money orderItemSubTotal = items.stream().map(orderItem -> {
+            validateItemPrice(orderItem);
+            return orderItem.getSubTotal();
+        }).reduce(Money.ZERO, Money::add);
+
+        if (!price.equals(orderItemSubTotal)){
+            throw new OrderDomainException("Price price" + price + " is not equal to subtotal price " + orderItemSubTotal);
+        }
+    }
+
+    private void validateItemPrice(OrderItem orderItem) {
+
+    }
+
+
+    private void initializeOrderItems() {
+        long itemId = 1;
+        for ( OrderItem orderItem: items){
+            orderItem.initializeOrderItem(super.getId(), new OrderItemId(itemId++));
+        }
     }
 
     public static final class Builder {
