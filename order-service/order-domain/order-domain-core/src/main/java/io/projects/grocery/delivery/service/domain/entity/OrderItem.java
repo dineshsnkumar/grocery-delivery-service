@@ -20,6 +20,10 @@ public class OrderItem extends BaseEntity<OrderItemId> {
         subTotal = builder.subTotal;
     }
 
+    public boolean isPriceValid(){
+        return price.isGreaterThanZero() && price.equals(product.getPrice());
+    }
+
 
     public OrderId getOrderId() {
         return orderId;

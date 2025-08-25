@@ -96,14 +96,60 @@ public class Order extends AggregateRoot<OrderId> {
     }
 
     private void validateItemPrice(OrderItem orderItem) {
-
+      if (!orderItem.isPriceValid()){
+          throw new OrderDomainException("Order item price" + orderItem.getPrice().getAmount() + " is not valid");
+      }
     }
-
 
     private void initializeOrderItems() {
         long itemId = 1;
         for ( OrderItem orderItem: items){
             orderItem.initializeOrderItem(super.getId(), new OrderItemId(itemId++));
+        }
+    }
+
+    // Order payment methods
+    public void pay(){
+        if (orderStatus != OrderStatus.PENDING){
+            throw new OrderDomainException("Order should be in PENDING state");
+        }
+
+        orderStatus = OrderStatus.PAID;
+    }
+
+    public void approve(){
+        if (orderStatus != OrderStatus.PAID){
+            throw new OrderDomainException("Order should be in PAID state");
+        }
+
+        orderStatus = OrderStatus.APPROVED;
+    }
+
+    public void initCancel(List<String> failureMessages){
+        if (orderStatus != OrderStatus.PAID){
+            throw new OrderDomainException("Order should be in PAID state");
+        }
+
+        orderStatus = OrderStatus.CANCELLING;
+        updateFailureMessages(failureMessages);
+    }
+
+
+    public void cancel(List<String> failureMessages){
+        if (orderStatus == OrderStatus.CANCELLING || orderStatus == OrderStatus.PENDING){
+            throw new OrderDomainException("Order should be in CANCELLING or PENDING state");
+        }
+        orderStatus = OrderStatus.CANCELLED;
+        updateFailureMessages(failureMessages);
+    }
+
+    private void updateFailureMessages(List<String> failureMessages) {
+        if (this.failureMessages == null){
+            this.failureMessages = failureMessages;
+        }
+
+        if (this.failureMessages !=null && failureMessages !=null){
+            failureMessages.addAll(failureMessages.stream().filter(message -> !message.isEmpty()).toList());
         }
     }
 
