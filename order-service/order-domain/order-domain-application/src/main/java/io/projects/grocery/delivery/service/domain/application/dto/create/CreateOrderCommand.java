@@ -1,6 +1,7 @@
 package io.projects.grocery.delivery.service.domain.application.dto.create;
 
 import io.projects.grocery.delivery.service.domain.entity.OrderItem;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class CreateOrderCommand {
     @NonNull
     private final UUID customerId;

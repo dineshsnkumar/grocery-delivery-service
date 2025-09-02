@@ -1,5 +1,6 @@
 package io.projects.grocery.delivery.service.domain.application.dto.create;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,6 +9,7 @@ import org.springframework.lang.NonNull;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class OrderAddress {
     @NonNull
     private final String street;
